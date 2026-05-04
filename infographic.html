@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANNI — Obsidian Workflow System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #050810;
+    --bg2: #0a1020;
+    --cyan: #00f5ff;
+    --violet: #b56dff;
+    --green: #39ff14;
+    --red: #ff3366;
+    --yellow: #ffe600;
+    --orange: #ff9500;
+    --white: #e8e8f0;
+    --gray: #6a7089;
+    --glow-cyan: 0 0 20px #00f5ff80, 0 0 40px #00f5ff30;
+    --glow-violet: 0 0 20px #b56dff80, 0 0 40px #b56dff30;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Share Tech Mono', monospace;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(#00f5ff08 1px, transparent 1px),
+      linear-gradient(90deg, #00f5ff08 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 60px;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-block;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-size: 11px;
+    letter-spacing: 4px;
+    padding: 4px 16px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--cyan), var(--violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px #00f5ff60);
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    color: var(--gray);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .header-line {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    margin: 30px auto;
+  }
+
+  /* BANNER */
+  .banner {
+    border: 1px solid #ffffff10;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 60px;
+    background: linear-gradient(135deg, #0a1020, #0d1530);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+
+  .banner-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 30px;
+  }
+
+  .banner-item {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .banner-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .banner-label {
+    color: var(--gray);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .banner-value {
+    color: var(--white);
+    font-size: 14px;
+  }
+
+  /* CENTRAL HUB */
+  .hub-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 80px;
+    min-height: 500px;
+  }
+
+  .hub-center {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #0d2040, #050810);
+    border: 2px solid var(--cyan);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: var(--glow-cyan), inset 0 0 40px #00f5ff10;
+    animation: hub-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes hub-pulse {
+    0%, 100% { box-shadow: var(--glow-cyan), inset 0 0 40px #00f5ff10; }
+    50% { box-shadow: 0 0 40px #00f5ff, 0 0 80px #00f5ff40, inset 0 0 60px #00f5ff20; }
+  }
+
+  .hub-icon { font-size: 40px; margin-bottom: 8px; }
+  .hub-title { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: var(--cyan); letter-spacing: 2px; }
+  .hub-sub { font-size: 9px; color: var(--gray); letter-spacing: 1px; margin-top: 4px; }
+
+  /* NODE ORBITS */
+  .orbit {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px dashed #ffffff15;
+  }
+
+  .orbit-1 { width: 360px; height: 360px; }
+  .orbit-2 { width: 540px; height: 540px; }
+
+  .node {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 1px;
+    cursor: default;
+    transition: transform 0.3s ease;
+    border: 1px solid;
+  }
+
+  .node:hover { transform: scale(1.15) !important; z-index: 10; }
+
+  .node-emoji { font-size: 22px; margin-bottom: 4px; }
+  .node-label { text-transform: uppercase; font-weight: bold; line-height: 1.3; }
+
+  .node-backlog {
+    background: #ffffff08;
+    border-color: #ffffff40;
+    color: var(--gray);
+    top: -45px; left: 50%; transform: translateX(-50%);
+  }
+
+  .node-ready {
+    background: #39ff1415;
+    border-color: var(--green);
+    color: var(--green);
+    top: 50%; right: -45px; transform: translateY(-50%);
+    box-shadow: 0 0 15px #39ff1440;
+  }
+
+  .node-red {
+    background: #ff336615;
+    border-color: var(--red);
+    color: var(--red);
+    bottom: -45px; left: 50%; transform: translateX(-50%);
+    box-shadow: 0 0 15px #ff336640;
+    animation: red-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes red-pulse {
+    0%, 100% { box-shadow: 0 0 15px #ff336640; }
+    50% { box-shadow: 0 0 30px #ff3366, 0 0 50px #ff336660; }
+  }
+
+  .node-completed {
+    background: #b56dff15;
+    border-color: var(--violet);
+    color: var(--violet);
+    top: 50%; left: -45px; transform: translateY(-50%);
+    box-shadow: 0 0 15px #b56dff40;
+  }
+
+  .node-context {
+    background: #ffe60015;
+    border-color: var(--yellow);
+    color: var(--yellow);
+    top: 0; left: 0;
+    box-shadow: 0 0 15px #ffe60030;
+  }
+
+  .node-always {
+    background: #ff950015;
+    border-color: var(--orange);
+    color: var(--orange);
+    bottom: 0; right: 0;
+    box-shadow: 0 0 15px #ff950030;
+  }
+
+  /* CONNECTING LINES (SVG) */
+  .lines-svg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* DIRECTORY STRUCTURE */
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ffffff10;
+  }
+
+  .tree-section {
+    margin-bottom: 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .tree-box {
+    background: var(--bg2);
+    border: 1px solid #ffffff10;
+    border-radius: 8px;
+    padding: 24px;
+  }
+
+  .tree {
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  .tree .folder { color: var(--cyan); }
+  .tree .file { color: var(--gray); }
+  .tree .file-pending { color: var(--green); }
+  .tree .file-done { color: var(--violet); }
+  .tree .arrow { color: var(--gray); }
+  .tree .indent { padding-left: 20px; display: block; }
+  .tree .indent2 { padding-left: 40px; display: block; }
+
+  /* FLOW DIAGRAM */
+  .flow-section { margin-bottom: 60px; }
+
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 16px;
+    min-width: 120px;
+  }
+
+  .flow-icon { font-size: 28px; }
+  .flow-num {
+    background: var(--cyan);
+    color: var(--bg);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .flow-label { font-size: 9px; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+  .flow-arrow { color: var(--gray); font-size: 20px; }
+
+  /* COLOR TABLE */
+  .color-table { margin-bottom: 60px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    color: var(--gray);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ffffff15;
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #ffffff08;
+    vertical-align: middle;
+  }
+
+  tr:hover td { background: #ffffff05; }
+
+  .swatch {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  .sw-backlog { background: #ffffff40; border: 1px solid #ffffff60; }
+  .sw-ready { background: var(--green); box-shadow: 0 0 8px #39ff1480; }
+  .sw-red { background: var(--red); box-shadow: 0 0 8px #ff336680; }
+  .sw-completed { background: var(--violet); box-shadow: 0 0 8px #b56dff80; }
+  .sw-context { background: var(--yellow); box-shadow: 0 0 8px #ffe60080; }
+  .sw-always { background: var(--orange); box-shadow: 0 0 8px #ff950080; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 40px 0;
+    border-top: 1px solid #ffffff10;
+    margin-top: 40px;
+  }
+
+  .footer-url {
+    color: var(--cyan);
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+
+  .footer-note {
+    color: var(--gray);
+    font-size: 10px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  /* SCAN LINE ANIMATION */
+  @keyframes scan {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  .scan-line {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan) 50%, transparent);
+    opacity: 0.3;
+    animation: scan 8s linear infinite;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* NODE LABELS ON ARROWS */
+  .edge-label {
+    position: absolute;
+    font-size: 8px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .banner-grid { grid-template-columns: 1fr; gap: 10px; }
+    .tree-section { grid-template-columns: 1fr; }
+    .hub-center { width: 120px; height: 120px; }
+    .hub-icon { font-size: 28px; }
+    .hub-title { font-size: 13px; }
+    .orbit-1 { width: 240px; height: 240px; }
+    .orbit-2 { width: 360px; height: 360px; }
+    .node { width: 65px; height: 65px; font-size: 7px; }
+    .node-emoji { font-size: 16px; }
+    .flow-step { min-width: 80px; padding: 12px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scan-line"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge">Workflow System</div>
+    <h1>HANNI</h1>
+    <div class="subtitle">Obsidian Canvas × AI Agent — Automated Project Management</div>
+    <div class="header-line"></div>
+  </header>
+
+  <!-- BANNER -->
+  <div class="banner">
+    <div class="banner-grid">
+      <div class="banner-item">
+        <span class="banner-icon">🎯</span>
+        <div class="banner-label">Trigger</div>
+        <div class="banner-value">Obsidian Canvas + Cron polling</div>
+      </div>
+      <div class="banner-item">
+        <span class="banner-icon">⚡</span>
+        <div class="banner-label">Agent</div>
+        <div class="banner-value">Hanni (Hermes Agent)</div>
+      </div>
+      <div class="banner-item">
+        <span class="banner-icon">📡</span>
+        <div class="banner-label">Notifications</div>
+        <div class="banner-value">Telegram on red nodes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTRAL HUB DIAGRAM -->
+  <div class="section-title">Node Color System</div>
+
+  <div class="hub-section">
+    <!-- SVG lines -->
+    <svg class="lines-svg" viewBox="0 0 600 600">
+      <!-- Orbital rings -->
+      <circle cx="300" cy="300" r="180" fill="none" stroke="#ffffff10" stroke-width="1" stroke-dasharray="4 4"/>
+      <circle cx="300" cy="300" r="270" fill="none" stroke="#ffffff08" stroke-width="1" stroke-dasharray="4 8"/>
+      <!-- Connection lines from center to nodes -->
+      <line x1="300" y1="300" x2="300" y2="120" stroke="#00f5ff" stroke-width="1" opacity="0.3"/>
+      <line x1="300" y1="300" x2="480" y2="300" stroke="#39ff14" stroke-width="1" opacity="0.3"/>
+      <line x1="300" y1="300" x2="300" y2="480" stroke="#ff3366" stroke-width="1" opacity="0.3"/>
+      <line x1="300" y1="300" x2="120" y2="300" stroke="#b56dff" stroke-width="1" opacity="0.3"/>
+      <line x1="300" y1="300" x2="165" y2="165" stroke="#ffe600" stroke-width="1" opacity="0.2"/>
+      <line x1="300" y1="300" x2="435" y2="435" stroke="#ff9500" stroke-width="1" opacity="0.2"/>
+    </svg>
+
+    <!-- Center Hub -->
+    <div class="hub-center">
+      <div class="hub-icon">🧠</div>
+      <div class="hub-title">HANNI</div>
+      <div class="hub-sub">Workflow Engine</div>
+    </div>
+
+    <!-- Orbit 1 nodes -->
+    <div class="node node-backlog" style="position:absolute; top: 50%; left: 50%; transform: translate(calc(-50% + 0px), calc(-50% - 180px));">
+      <div class="node-emoji">⬜</div>
+      <div class="node-label">Backlog</div>
+    </div>
+
+    <div class="node node-ready" style="position:absolute; top: 50%; left: 50%; transform: translate(calc(-50% + 180px), calc(-50% + 0px));">
+      <div class="node-emoji">🟢</div>
+      <div class="node-label">Ready</div>
+    </div>
+
+    <div class="node node-red" style="position:absolute; top: 50%; left: 50%; transform: translate(calc(-50% + 0px), calc(-50% + 180px));">
+      <div class="node-emoji">🔴</div>
+      <div class="node-label">Human<br>Stop</div>
+    </div>
+
+    <div class="node node-completed" style="position:absolute; top: 50%; left: 50%; transform: translate(calc(-50% - 180px), calc(-50% + 0px));">
+      <div class="node-emoji">🔵</div>
+      <div class="node-label">Done</div>
+    </div>
+
+    <!-- Orbit 2 nodes -->
+    <div class="node node-context" style="position:absolute; top: 50%; left: 50%; transform: translate(calc(-50% - 240px), calc(-50% - 240px)); width:80px; height:80px;">
+      <div class="node-emoji">🟡</div>
+      <div class="node-label">Context</div>
+    </div>
+
+    <div class="node node-always" style="position:absolute; top: 50%; left: 50%; transform: translate(calc(-50% + 240px), calc(-50% + 240px)); width:80px; height:80px;">
+      <div class="node-emoji">🟠</div>
+      <div class="node-label">Always<br>Run</div>
+    </div>
+  </div>
+
+  <!-- DIRECTORY + WORKFLOW TABLE -->
+  <div class="tree-section">
+    <div>
+      <div class="section-title">Vault Structure</div>
+      <div class="tree-box">
+        <div class="tree">
+<span class="folder">📁 HANNI/</span>
+<span class="file">    └─ 📁 WORKFLOW/</span>
+<span class="file">        └─ 📁 MI_PROYECTO/</span>
+<span class="file-pending">        │   ├─ 📄 MI_PROYECTO.canvas</span>
+<span class="file-pending">        │   ├─ 📄 MI_PROYECTO_PENDING.md</span>
+<span class="file-done">        │   └─ 📄 MI_PROYECTO_COMPLETED.md</span>
+<span class="file">        │   ├─ 📁 notes/</span>
+<span class="file">        │   └─ 📁 media/</span>
+<span class="file">        └─ 📁 OTRO_PROYECTO/</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Node Behavior</div>
+      <table class="color-table">
+        <thead>
+          <tr>
+            <th>Color</th>
+            <th>State</th>
+            <th>Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="swatch sw-backlog"></span>White</td>
+            <td>Backlog</td>
+            <td>Not yet processable</td>
+          </tr>
+          <tr>
+            <td><span class="swatch sw-ready"></span>Green</td>
+            <td>Ready</td>
+            <td>IA processes it now</td>
+          </tr>
+          <tr>
+            <td><span class="swatch sw-red"></span>Red</td>
+            <td>Human Intervention</td>
+            <td>STOP — Telegram notification</td>
+          </tr>
+          <tr>
+            <td><span class="swatch sw-completed"></span>Violet</td>
+            <td>Completed</td>
+            <td>Processed successfully</td>
+          </tr>
+          <tr>
+            <td><span class="swatch sw-context"></span>Yellow</td>
+            <td>Context</td>
+            <td>Read before related tasks</td>
+          </tr>
+          <tr>
+            <td><span class="swatch sw-always"></span>Orange</td>
+            <td>Always Run</td>
+            <td>Executes on every task completion</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- POLLING FLOW -->
+  <div class="flow-section">
+    <div class="section-title">Processing Flow</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-icon">⏰</div>
+        <div class="flow-label">Cron wakes<br>every 1 min</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-icon">🔍</div>
+        <div class="flow-label">Scan<br>_PENDING files</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-icon">📖</div>
+        <div class="flow-label">Read<br>.canvas JSON</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-icon">🟢</div>
+        <div class="flow-label">Process<br>green nodes</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-icon">🟠</div>
+        <div class="flow-label">Run orange<br>always-run</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-icon">🔵</div>
+        <div class="flow-label">Mark<br>completed</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">7</div>
+        <div class="flow-icon">💬</div>
+        <div class="flow-label">Telegram<br>alerts on 🔴</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS JSON EXAMPLE -->
+  <div class="section-title">Canvas JSON Format</div>
+  <div style="background:#0a1020; border:1px solid #ffffff10; border-radius:8px; padding:24px; font-size:11px; line-height:1.8; overflow-x:auto; margin-bottom:60px;">
+<pre style="color: #6a7089;"><span style="color:#ff9500;">// Node colors: ""=backlog "1"=red "2"=orange "3"=yellow "4"=green "6"=violet(complete)</span>
+{
+  <span style="color:#00f5ff;">"nodes"</span>: [
+    { <span style="color:#00f5ff;">"id"</span>: <span style="color:#39ff14;">"ctx-1"</span>, <span style="color:#00f5ff;">"type"</span>: <span style="color:#39ff14;">"text"</span>, <span style="color:#00f5ff;">"text"</span>: <span style="color:#39ff14;">"Project overview"</span>, <span style="color:#00f5ff;">"color"</span>: <span style="color:#39ff14;">"3"</span> },
+    { <span style="color:#00f5ff;">"id"</span>: <span style="color:#39ff14;">"task-1"</span>, <span style="color:#00f5ff;">"type"</span>: <span style="color:#39ff14;">"file"</span>, <span style="color:#00f5ff;">"file"</span>: <span style="color:#39ff14;">"notes/task-1.md"</span>, <span style="color:#00f5ff;">"color"</span>: <span style="color:#39ff14;">"4"</span> },
+    { <span style="color:#00f5ff;">"id"</span>: <span style="color:#39ff14;">"approve"</span>, <span style="color:#00f5ff;">"type"</span>: <span style="color:#39ff14;">"text"</span>, <span style="color:#00f5ff;">"text"</span>: <span style="color:#39ff14;">"Await approval"</span>, <span style="color:#00f5ff;">"color"</span>: <span style="color:#39ff14;">"1"</span> },
+    { <span style="color:#00f5ff;">"id"</span>: <span style="color:#39ff14;">"notify"</span>, <span style="color:#00f5ff;">"type"</span>: <span style="color:#39ff14;">"text"</span>, <span style="color:#00f5ff;">"text"</span>: <span style="color:#39ff14;">"Notify on complete"</span>, <span style="color:#00f5ff;">"color"</span>: <span style="color:#39ff14;">"2"</span> }
+  ],
+  <span style="color:#00f5ff;">"edges"</span>: [
+    { <span style="color:#00f5ff;">"fromNode"</span>: <span style="color:#39ff14;">"ctx-1"</span>, <span style="color:#00f5ff;">"toNode"</span>: <span style="color:#39ff14;">"task-1"</span> },
+    { <span style="color:#00f5ff;">"fromNode"</span>: <span style="color:#39ff14;">"task-1"</span>, <span style="color:#00f5ff;">"toNode"</span>: <span style="color:#39ff14;">"approve"</span> }
+  ]
+}
+</pre>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <a class="footer-url" href="https://github.com/AlPeFe/hanni-obsidian-workflow">github.com/AlPeFe/hanni-obsidian-workflow</a>
+    <div class="footer-note">HANNI × Obsidian Canvas × Hermes Agent — Automated Project Management</div>
+  </footer>
+
+</div>
+
+<script>
+  // Subtle parallax on hub nodes
+  document.addEventListener('mousemove', (e) => {
+    const nodes = document.querySelectorAll('.node');
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (e.clientX - cx) / cx;
+    const dy = (e.clientY - cy) / cy;
+    nodes.forEach((n, i) => {
+      const angle = (i / nodes.length) * Math.PI * 2;
+      const drift = 3;
+      n.style.transform = `translate(calc(-50% + ${dx * drift}px), calc(-50% + ${dy * drift}px))`;
+    });
+  });
+</script>
+
+</body>
+</html>
